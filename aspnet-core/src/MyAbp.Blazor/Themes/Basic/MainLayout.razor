@@ -1,0 +1,70 @@
+﻿@inherits LayoutComponentBase
+@using Volo.Abp.Ui.Branding
+@using Volo.Abp.UI.Navigation;
+@inject IBrandingProvider BrandingProvider
+<AntDesign.Pro.Layout.BasicLayout Logo="@("https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg")" MenuData="NavMenu.ToArray()">
+    <RightContentRender>
+        <MyAbp.Blazor.Themes.Basic.RightContent />
+        @*<AntDesign.Pro.Layout.RightContent />*@
+    </RightContentRender>
+    <ChildContent>
+        @Body
+        @*<UiMessageAlert />*@
+    </ChildContent>
+</AntDesign.Pro.Layout.BasicLayout>
+@code
+{
+    private List<MenuDataItem> NavMenu { get; set; }
+
+    [Inject]
+    protected IMenuManager MenuManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        CreateMenu(await MenuManager.GetAsync(StandardMenus.Main));
+    }
+
+    protected void CreateMenu(ApplicationMenu Menu)
+    {
+        NavMenu = new List<MenuDataItem>();
+
+        foreach (var item in Menu.Items)
+        {
+            var menu = new MenuDataItem()
+            {
+                Path = item.Url,
+                Name = item.DisplayName,
+                Key = item.Name,
+                Icon = item.Icon
+            };
+
+            if (item.Items.Count>0)
+                menu.Children = CreateChildMenu(item).ToArray();
+
+            NavMenu.Add(menu);
+        }
+    }
+
+    protected List<MenuDataItem> CreateChildMenu(ApplicationMenuItem Menu)
+    {
+        List<MenuDataItem> menu = new List<MenuDataItem>();
+        foreach (var item in Menu.Items)
+        {
+            var child = new MenuDataItem()
+            {
+                Path=item.Url,
+                Name = item.DisplayName,
+                Key = item.Name,
+                Icon = item.Icon
+            };
+
+            if (item.Items.Count>0)
+                child.Children = CreateChildMenu(item).ToArray();
+            
+            menu.Add(child);
+        }
+        return menu;
+    }
+}

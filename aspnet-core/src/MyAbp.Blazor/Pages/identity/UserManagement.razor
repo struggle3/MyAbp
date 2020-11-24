@@ -1,0 +1,174 @@
+﻿@page "/identitys/users"
+@attribute [Authorize(IdentityPermissions.Users.Default)]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.Identity
+@using Volo.Abp.Identity.Localization
+@using Volo.Abp.PermissionManagement.Blazor.Components
+@inject IStringLocalizer<IdentityResource> L
+@inherits UserManagementBase
+<PageContainer Title="@L["Menu:IdentityManagement"]">
+    <Card Title="@L["Users"]">
+        <Extra>
+            @if (HasCreatePermission)
+            {
+                <AntDesign.Button OnClick="OpenCreateModalAsync" Class="ant-btn ant-btn-primary">@L["NewUser"]</AntDesign.Button>
+            }
+        </Extra>
+        <ChildContent>
+            @* ************************* DATA GRID ************************* *@
+            <Table DataSource="@Entities" TItem="IdentityUserDto"  PageSize="PageSize" Total="TotalCount" OnChange="OnDataGridReadAsync">
+                <AntDesign.Column @bind-Field="@context.UserName" Title="@L["UserName"].Value"></AntDesign.Column>
+                <AntDesign.Column @bind-Field="@context.Email" Title="@L["Email"].Value"></AntDesign.Column>
+                <AntDesign.Column @bind-Field="@context.PhoneNumber" Title="@L["PhoneNumber"].Value"></AntDesign.Column>
+                <ActionColumn Title="@L["Actions"]">
+                    <Space>
+                        @if (HasManagePermissionsPermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Class="ant-btn ant-btn-default" OnClick="() => PermissionManagementModal.OpenAsync(PermissionProviderName, context.As<IdentityUserDto>().Id.ToString())">@L["Permissions"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                        @if (HasUpdatePermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Class="ant-btn ant-btn-primary" OnClick="() => OpenEditModalAsync(context.As<IdentityUserDto>().Id)">@L["Edit"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                        @if (HasDeletePermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Danger OnClick="() => DeleteEntityAsync(context.As<IdentityUserDto>())">@L["Delete"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                    </Space>
+                </ActionColumn>
+            </Table>
+        </ChildContent>
+    </Card>
+    @* ************************* CREATE MODAL ************************* *@
+    @if (HasCreatePermission)
+    {
+        RenderFragment footerCreate =@<Template>
+        <Button Class="ant-btn ant-btn-primary" OnClick="CloseCreateModalAsync">
+            @L["Cancel"]
+        </Button>
+        <Button OnClick="CreateEntityAsync">
+            @L["Save"]
+        </Button>
+    </Template>;
+<Modal Title="@L["NewUser"].Value" Visible="CreateVisible" Footer="@footerCreate">
+    <Tabs DefaultActiveKey="UserInformations" @bind-ActiveKey="@CreateModalSelectedTab">
+        <TabPane Key="UserInformations">
+            <Tab>@L["UserInformations"].Value</Tab>
+            <ChildContent>
+                <Form Model="NewEntity" LabelCol="new ColLayoutParam { Span = 8 }" WrapperCol="new ColLayoutParam { Span = 16 }">
+                    <FormItem Label="@L["DisplayName:UserName"]">
+                        <Input @bind-Value="NewEntity.UserName" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Name"]">
+                        <Input @bind-Value="NewEntity.Name" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Surname"]">
+                        <Input @bind-Value="NewEntity.Surname" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Password"]">
+                        <Input @bind-Value="NewEntity.Password" Type="password" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Email"]">
+                        <Input @bind-Value="NewEntity.Email" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:PhoneNumber"]">
+                        <Input @bind-Value="NewEntity.PhoneNumber" />
+                    </FormItem>
+                    <FormItem>
+                        <Checkbox Checked="@NewEntity.LockoutEnabled" @bind-Value="@NewEntity.LockoutEnabled">
+                            @L["DisplayName:LockoutEnabled"]
+                        </Checkbox>
+                    </FormItem>
+                </Form>
+            </ChildContent>
+        </TabPane>
+        <TabPane Key="Roles">
+            <Tab>@L["Roles"].Value</Tab>
+            <ChildContent>
+                @if (NewUserRoles != null)
+                {
+                    @foreach (var role in NewUserRoles)
+                    {
+                        <Checkbox Checked="role.IsAssigned" @bind-Value="@role.IsAssigned">
+                            @role.Name
+                        </Checkbox>
+                    }
+                }
+            </ChildContent>
+        </TabPane>
+    </Tabs>
+
+</Modal>
+}
+    @* ************************* EDIT MODAL ************************* *@
+    @if (HasUpdatePermission)
+    {
+        RenderFragment footerEdit =@<Template>
+        <Button Class="ant-btn ant-btn-primary" OnClick="CloseEditModalAsync">
+            @L["Cancel"]
+        </Button>
+        <Button OnClick="UpdateEntityAsync">
+            @L["Save"]
+        </Button>
+    </Template>;
+<Modal Title="@L["Edit"].Value" Visible="EditVisible" Footer="@footerEdit">
+    <Tabs DefaultActiveKey="UserInformations" @bind-ActiveKey="@EditModalSelectedTab">
+        <TabPane Key="UserInformations">
+            <Tab>@L["UserInformations"].Value</Tab>
+            <ChildContent>
+                <Form Model="EditingEntity" Style="margin-top: 8px;" LabelCol="new ColLayoutParam { Span = 2 }" WrapperCol="new ColLayoutParam { Span = 22 }">
+                    <input type="hidden" name="ConcurrencyStamp" @bind-value="EditingEntity.ConcurrencyStamp" />
+                    <FormItem Label="@L["DisplayName:UserName"]">
+                        <Input @bind-Value="EditingEntity.UserName" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Name"]">
+                        <Input @bind-Value="EditingEntity.Name" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Surname"]">
+                        <Input @bind-Value="EditingEntity.Surname" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Password"]">
+                        <Input @bind-Value="EditingEntity.Password" Type="password" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:Email"]">
+                        <Input @bind-Value="EditingEntity.Email" />
+                    </FormItem>
+                    <FormItem Label="@L["DisplayName:PhoneNumber"]">
+                        <Input @bind-Value="EditingEntity.PhoneNumber" />
+                    </FormItem>
+                    <FormItem>
+                        <Checkbox Checked="@EditingEntity.LockoutEnabled" @bind-Value="@EditingEntity.LockoutEnabled">
+                            @L["DisplayName:LockoutEnabled"]
+                        </Checkbox>
+                    </FormItem>
+                </Form>
+            </ChildContent>
+        </TabPane>
+        <TabPane Key="Roles">
+            <Tab>@L["Roles"].Value</Tab>
+            <ChildContent>
+                @if (NewUserRoles != null)
+                {
+                    //List<CheckboxOption> options = new List<CheckboxOption>();
+                    @foreach (var role in EditUserRoles)
+                    {
+                <Checkbox Checked="role.IsAssigned" @bind-Value="@role.IsAssigned">
+                    @role.Name
+                </Checkbox>
+                    }
+                    @*<CheckboxGroup Options="@options.ToArray()" />*@
+                }
+            </ChildContent>
+        </TabPane>
+    </Tabs>
+</Modal>
+}
+    <PermissionManagementModal @ref="PermissionManagementModal" />
+</PageContainer>

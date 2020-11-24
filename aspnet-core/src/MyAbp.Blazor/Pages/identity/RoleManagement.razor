@@ -1,0 +1,116 @@
+﻿@page "/identitys/roles"
+@attribute [Authorize(IdentityPermissions.Roles.Default)]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.Identity
+@using Volo.Abp.Identity.Localization
+@using Volo.Abp.PermissionManagement.Blazor.Components
+@inject IStringLocalizer<IdentityResource> L
+@inherits RoleManagementBase
+
+<PageContainer Title="@L["Menu:IdentityManagement"]">
+    <Card Title="@L["Roles"]">
+        <Extra>
+            @if (HasCreatePermission)
+            {
+                <AntDesign.Button OnClick="OpenCreateModalAsync" Class="ant-btn ant-btn-primary">@L["NewRole"]</AntDesign.Button>
+            }
+        </Extra>
+        <ChildContent>
+            @* ************************* DATA GRID ************************* *@
+            <Table DataSource="@Entities" TItem="IdentityRoleDto" PageSize="PageSize" Total="TotalCount" OnChange="OnDataGridReadAsync">
+                <AntDesign.Column @bind-Field="@context.Name" Title="@L["RoleName"].Value">
+                    <Template>
+                        @context.Name
+                        @if (context.As<IdentityRoleDto>().IsDefault)
+                        {
+                            <Tag Class="volcano">@L["DisplayName:IsDefault"]</Tag>
+                        }
+                        @if (context.As<IdentityRoleDto>().IsPublic)
+                        {
+                            <Tag Class="green">@L["DisplayName:IsPublic"]</Tag>
+                        }
+                    </Template>
+                </AntDesign.Column>
+                <ActionColumn Title="@L["Actions"]">
+                    <Space>
+                        @if (HasManagePermissionsPermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Class="ant-btn ant-btn-default" OnClick="() => PermissionManagementModal.OpenAsync(PermissionProviderName, context.As<IdentityRoleDto>().Name)">@L["Permissions"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                        @if (HasUpdatePermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Class="ant-btn ant-btn-primary" OnClick="() => OpenEditModalAsync(context.As<IdentityRoleDto>().Id)">@L["Edit"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                        @if (HasDeletePermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Danger OnClick="() => DeleteEntityAsync(context.As<IdentityRoleDto>())">@L["Delete"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                    </Space>
+                </ActionColumn>
+            </Table>
+        </ChildContent>
+    </Card>
+@* ************************* CREATE MODAL ************************* *@
+@if (HasCreatePermission)
+{
+    RenderFragment footerCreate =@<Template>
+        <Button Class="ant-btn ant-btn-primary" OnClick="CloseCreateModalAsync">
+            @L["Cancel"]
+        </Button>
+        <Button OnClick="CreateEntityAsync">
+            @L["Save"]
+        </Button>
+    </Template>;
+
+<Modal Title="@L["NewRole"].Value" Visible="CreateVisible" Footer="@footerCreate">
+    <Form Model="@NewEntity">
+        <FormItem Label="@L["DisplayName:RoleName"]">
+            <Input @bind-Value="@NewEntity.Name" />
+        </FormItem>
+        <FormItem>
+            <Checkbox Checked="@NewEntity.IsPublic" Value="@NewEntity.IsPublic">
+                @L["DisplayName:IsPublic"]
+            </Checkbox>
+            <Checkbox Checked="@NewEntity.IsDefault" Value="@NewEntity.IsDefault">
+                @L["DisplayName:IsDefault"]
+            </Checkbox>
+        </FormItem>
+    </Form>
+</Modal>
+}
+@* ************************* EDIT MODAL ************************* *@
+@if (HasUpdatePermission)
+{
+RenderFragment footerEdit =@<Template>
+<Button Class="ant-btn ant-btn-primary" OnClick="CloseEditModalAsync">
+    @L["Cancel"]
+</Button>
+<Button OnClick="UpdateEntityAsync">
+    @L["Save"]
+</Button>
+</Template>;
+<Modal Title="@L["Edit"].Value" Visible="EditVisible" Footer="@footerEdit">
+    <Form Model="@EditingEntity">
+        <FormItem Label="@L["DisplayName:RoleName"]">
+            <Input @bind-Value="@EditingEntity.Name" />
+        </FormItem>
+        <FormItem>
+            <Checkbox Checked="@EditingEntity.IsPublic" Value="@EditingEntity.IsPublic">
+                @L["DisplayName:IsPublic"]
+            </Checkbox>
+            <Checkbox Checked="@EditingEntity.IsDefault" Value="@EditingEntity.IsDefault">
+                @L["DisplayName:IsDefault"]
+            </Checkbox>
+        </FormItem>
+    </Form>
+</Modal>
+}
+    <PermissionManagementModal @ref="PermissionManagementModal" />
+</PageContainer>

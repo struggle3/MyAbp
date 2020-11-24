@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Components.WebAssembly.BasicTheme;
-using Volo.Abp.AspNetCore.Components.WebAssembly.BasicTheme.Themes.Basic;
+//using Volo.Abp.AspNetCore.Components.WebAssembly.BasicTheme.Themes.Basic;
 using Volo.Abp.AspNetCore.Components.WebAssembly.Theming.Routing;
 using Volo.Abp.Autofac.WebAssembly;
 using Volo.Abp.Modularity;
@@ -17,13 +17,14 @@ using Volo.Abp.UI.Navigation;
 using Volo.Abp.Identity.Blazor;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.TenantManagement.Blazor;
+using MyAbp.Blazor.Themes.Basic;
 
 namespace MyAbp.Blazor
 {
     [DependsOn(
         typeof(AbpAutofacWebAssemblyModule),
         typeof(MyAbpHttpApiClientModule),
-        typeof(AbpAspNetCoreComponentsWebAssemblyBasicThemeModule),
+        //typeof(AbpAspNetCoreComponentsWebAssemblyBasicThemeModule),
         typeof(AbpIdentityBlazorModule),
         typeof(AbpTenantManagementBlazorModule)
     )]
@@ -41,6 +42,8 @@ namespace MyAbp.Blazor
             ConfigureUI(builder);
             ConfigureMenu(context);
             ConfigureAutoMapper(context);
+
+            context.Services.AddAntDesign();
         }
 
         private void ConfigureRouter(ServiceConfigurationContext context)

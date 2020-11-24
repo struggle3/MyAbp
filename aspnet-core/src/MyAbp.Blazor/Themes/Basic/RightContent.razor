@@ -1,0 +1,63 @@
+﻿@using MyAbp.Localization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<MyAbpResource> L
+<Space>
+    <SpaceItem>
+        <Menu Mode=MenuMode.Horizontal Style="color: #fff; background-color:#001529">
+            <AuthorizeView>
+                <Authorized>
+                    @if (CurrentTenant.Name != null)
+                    {
+                        RenderFragment userMenu =
+                            @<Template>
+    <Icon Type="user" Theme="outline" Style="color: #fff; background-color:#001529"></Icon>
+    @(CurrentTenant.Name + "/" + CurrentUser.UserName)
+</Template>;
+                <SubMenu TitleTemplate="userMenu">
+                    <MenuItem Key="u" OnClick="BeginSignOut">
+                        @L["Logout"]
+                    </MenuItem>
+                </SubMenu> 
+                    }
+                    else
+                    {
+                        RenderFragment userMenu =
+                @<Template>
+    <Icon Type="user" Theme="outline" Style="color: #fff; background-color:#001529"></Icon>
+    @(CurrentUser.UserName)
+</Template>;
+                <SubMenu TitleTemplate="userMenu">
+                    <MenuItem Key="u" OnClick="BeginSignOut">
+                      @L["Logout"]
+                    </MenuItem>
+                </SubMenu>
+                    }
+                </Authorized>
+                <NotAuthorized>
+                    <SubMenu>
+                        <MenuItem OnClick="Login">
+                            <Icon Type="Login" Theme="outline" Style="color: #fff; background-color:#001529"></Icon>
+                            @L["Login"]
+                        </MenuItem>
+                    </SubMenu>
+                    
+                </NotAuthorized>
+            </AuthorizeView>
+
+            @if (_otherLanguages != null && _otherLanguages.Any())
+            {
+                RenderFragment langMenu =
+        @<Template>
+                <Icon Type="global" Theme="outline" Style="color: #fff; background-color:#001529"></Icon>
+                test
+        </Template>;
+
+                                    <SubMenu TitleTemplate=@langMenu>
+                                        @foreach (var language in _otherLanguages)
+                                        {
+        <MenuItem Key="@language.UiCultureName" OnClick="() => ChangeLanguageAsync(language)">@language.DisplayName</MenuItem>}
+                                    </SubMenu>
+            }
+        </Menu>
+    </SpaceItem>
+</Space>

@@ -23,6 +23,15 @@ using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
+using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Bundling;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Bundling;
+using MyAbp.Bundling;
+using MyAbp.Toolbars;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Toolbars;
+using MyAbp.Themes.Basic;
+using Volo.Abp.AspNetCore.Mvc.UI.Theming;
+using Volo.Abp.MultiTenancy;
 
 namespace MyAbp
 {
@@ -53,6 +62,68 @@ namespace MyAbp
             ConfigureVirtualFileSystem(context);
             ConfigureCors(context, configuration);
             ConfigureSwaggerServices(context);
+
+            //Configure<AbpBundlingOptions>(options =>
+            //{
+            //    options.StyleBundles.Configure(
+            //        BasicThemeBundles.Styles.Global, 
+            //        bundle =>
+            //        {
+            //            bundle.AddFiles("/styles/global-styles.css");
+            //        });
+            //});
+
+            //Configure<AbpBundlingOptions>(options =>
+            //{
+            //    options.ScriptBundles.Configure(
+            //        BasicThemeBundles.Styles.Global,
+            //        bundle =>
+            //        {
+            //            bundle.AddFiles("/js/global-styles.js");
+            //        });
+            //});
+
+            Configure<AbpBundlingOptions>(options =>
+            {
+                options.StyleBundles.Configure(
+                    StandardBundles.Styles.Global,
+                    bundleConfiguration =>
+                    {
+                        bundleConfiguration.AddContributors(typeof(MyGlobalStyleBundleContributor));
+                    }
+                );
+            });
+
+            Configure<AbpBundlingOptions>(options =>
+            {
+                options.ScriptBundles.Configure(
+                    StandardBundles.Scripts.Global,
+                    bundleConfiguration =>
+                    {
+                        bundleConfiguration.AddContributors(typeof(MyGlobalScriptBundleContributor));
+                    }
+                );
+            });
+
+            Configure<AbpToolbarOptions>(options =>
+            {
+                options.Contributors.Add(new MyToolbarContributor());
+            });
+
+            Configure<AbpThemingOptions>(options =>
+            {
+                options.Themes.Add<MyTheme>();
+
+                if (options.DefaultThemeName == null)
+                {
+                    options.DefaultThemeName = MyTheme.Name;
+                }
+            });
+
+            Configure<AbpMultiTenancyOptions>(options => 
+            {
+                options.IsEnabled = false;
+            });
         }
 
         private void ConfigureUrls(IConfiguration configuration)
@@ -184,6 +255,7 @@ namespace MyAbp
             app.UseAuthentication();
             app.UseJwtTokenMiddleware();
 
+           
             if (MultiTenancyConsts.IsEnabled)
             {
                 app.UseMultiTenancy();

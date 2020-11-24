@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AntDesign" Version="0.4.0-nightly-2011101445" />
+    <PackageReference Include="AntDesign.Charts" Version="0.2.0" />
+    <PackageReference Include="AntDesign.Pro.Layout" Version="0.1.0-nightly-201103141915" />
     <PackageReference Include="Blazorise.Bootstrap" Version="0.9.1.2" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.1" PrivateAssets="all" />
@@ -15,7 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="Volo.Abp.Autofac.WebAssembly" Version="3.3.0" />
-    <PackageReference Include="Volo.Abp.AspNetCore.Components.WebAssembly.BasicTheme" Version="3.3.0" />
+	<PackageReference Include="Volo.Abp.AspNetCore.Components.WebAssembly.BasicTheme" Version="3.3.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,140 @@
+﻿@page "/tenant/tenants"
+@attribute [Authorize(TenantManagementPermissions.Tenants.Default)]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.TenantManagement
+@using Volo.Abp.TenantManagement.Localization
+@using Volo.Abp.FeatureManagement.Blazor.Components
+@inherits TenantManagementBase
+@inject IStringLocalizer<AbpTenantManagementResource> L
+<PageContainer Title="@L["Menu:TenantManagement"]">
+    <Card Title="@L["Tenants"]">
+        <Extra>
+            @if (HasCreatePermission)
+            {
+                <AntDesign.Button OnClick="OpenCreateModalAsync" Class="ant-btn ant-btn-primary">@L["NewTenant"]</AntDesign.Button>
+            }
+        </Extra>
+        <ChildContent>
+            @* ************************* DATA GRID ************************* *@
+            <Table DataSource="@Entities" TItem="TenantDto" PageSize="PageSize" Total="TotalCount" OnChange="OnDataGridReadAsync">
+                <AntDesign.Column @bind-Field="@context.Name" Title="@L["TenantName"].Value">
+                    <Template>
+                        @context.Name
+                        @*@if (context.As<IdentityRoleDto>().IsDefault)
+                            {
+                                <Tag Class="volcano">@L["DisplayName:IsDefault"]</Tag>
+                            }
+                            @if (context.As<IdentityRoleDto>().IsPublic)
+                            {
+                                <Tag Class="green">@L["DisplayName:IsPublic"]</Tag>
+                            }*@
+                    </Template>
+                </AntDesign.Column>
+                <ActionColumn Title="@L["Actions"]">
+                    <Space>
+                        @if (HasUpdatePermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Class="ant-btn ant-btn-primary" OnClick="() => OpenEditModalAsync(context.As<TenantDto>().Id)">@L["Edit"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                        @if (HasDeletePermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button Danger OnClick="() => DeleteEntityAsync(context.As<TenantDto>())">@L["Delete"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                        @if (HasManageConnectionStringsPermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button OnClick="() => OpenEditConnectionStringModalAsync(context.As<TenantDto>().Id)">@L["ConnectionStrings"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                        @if (HasManageFeaturesPermission)
+                        {
+                            <SpaceItem>
+                                <AntDesign.Button OnClick="() => FeatureManagementModal.OpenAsync(FeatureProviderName, context.As<TenantDto>().Id.ToString())">@L["Features"]</AntDesign.Button>
+                            </SpaceItem>
+                        }
+                    </Space>
+                </ActionColumn>
+            </Table>
+        </ChildContent>
+    </Card>
+    @* ************************* CREATE MODAL ************************* *@
+    @if (HasCreatePermission)
+    {
+        RenderFragment footerCreate =@<Template>
+        <Button Class="ant-btn ant-btn-primary" OnClick="CloseCreateModalAsync">
+            @L["Cancel"]
+        </Button>
+        <Button OnClick="CreateEntityAsync">
+            @L["Save"]
+        </Button>
+    </Template>;
+<Modal Title="@L["NewTenant"].Value" Visible="CreateVisible" Footer="@footerCreate">
+    <Form Model="@NewEntity" LabelCol="new ColLayoutParam { Span = 8 }" WrapperCol="new ColLayoutParam { Span = 16 }">
+        <FormItem Label="@L["TenantName"]">
+            <Input @bind-Value="@NewEntity.Name" />
+        </FormItem>
+        <FormItem Label="@L["DisplayName:AdminEmailAddress"]">
+            <Input @bind-Value="@NewEntity.AdminEmailAddress" />
+        </FormItem>
+        <FormItem Label="@L["DisplayName:AdminPassword"]">
+            <Input @bind-Value="@NewEntity.AdminPassword" />
+        </FormItem>
+    </Form>
+</Modal>
+}
+@* ************************* EDIT MODAL ************************* *@
+    @if (HasUpdatePermission)
+    {
+        RenderFragment footerEdit =@<Template>
+        <Button Class="ant-btn ant-btn-primary" OnClick="CloseEditModalAsync">
+            @L["Cancel"]
+        </Button>
+        <Button OnClick="UpdateEntityAsync">
+            @L["Save"]
+        </Button>
+    </Template>;
+<Modal Title="@L["Edit"].Value" Visible="EditVisible" Footer="@footerEdit">
+    <Form Model="@EditingEntity">
+        <FormItem Label="@L["TenantName"]">
+            <Input @bind-Value="@EditingEntity.Name" />
+        </FormItem>
+    </Form>
+</Modal>
+}
+@* ************************* EDIT CONNECTION STRING MODAL ************************* *@
+    @if (HasUpdatePermission)
+    {
+        RenderFragment footerConnectionEdit =@<Template>
+        <Button Class="ant-btn ant-btn-primary" OnClick="CloseEditConnectionStringModal">
+            @L["Cancel"]
+        </Button>
+        <Button OnClick="UpdateConnectionStringAsync">
+            @L["Save"]
+        </Button>
+    </Template>;
+<Modal Title="@L["ConnectionStrings"].Value" Visible="ManageConnectionStringModal" Footer="@footerConnectionEdit">
+    <Form Model="@EditingEntity">
+        <FormItem Label="@L["DisplayName:DefaultConnectionString"]">
+            <Checkbox @bind-Checked="@TenantInfo.UseSharedDatabase" @bind-Value="@TenantInfo.UseSharedDatabase">
+                
+            </Checkbox>
+        </FormItem>
+        @if (!TenantInfo.UseSharedDatabase)
+        {
+            <FormItem Label="@L["DisplayName:DefaultConnectionString"]">
+                <Input @bind-Value="@TenantInfo.DefaultConnectionString" />
+            </FormItem>
+        }
+    </Form>
+</Modal>
+}
+    @if (HasManageFeaturesPermission)
+    {
+        <FeatureManagementModal @ref="FeatureManagementModal" />
+    }
+</PageContainer>
