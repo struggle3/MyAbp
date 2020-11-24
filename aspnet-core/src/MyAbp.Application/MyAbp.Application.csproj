@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>MyAbp</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyAbp.Domain\MyAbp.Domain.csproj" />
+    <ProjectReference Include="..\MyAbp.Application.Contracts\MyAbp.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Account.Application" Version="3.3.0" />
+    <PackageReference Include="Volo.Abp.Identity.Application" Version="3.3.0" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="3.3.0" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="3.3.0" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="3.3.0" />
+  </ItemGroup>
+
+</Project>

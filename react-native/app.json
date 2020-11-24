@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "MyAbp",
+    "slug": "MyAbp",
+    "privacy": "public",
+    "sdkVersion": "36.0.0",
+    "platforms": ["ios", "android", "web"],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#38003c"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.MyAbp",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "com.MyAbp",
+      "versionCode": 1
+    }
+  }
+}
